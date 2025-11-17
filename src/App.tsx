@@ -1,3 +1,10 @@
+import {Home} from '@/views';
+
 export default function App() {
-  return <div></div>;
+  return (
+    <>
+      <Home />
+    </>
+  );
 }
+
