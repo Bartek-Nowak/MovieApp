@@ -1,15 +1,12 @@
-import type { Movie } from "@/types/Movie";
+import Poster from './Poster';
+import type {Movie} from '@/types/Movie';
 
 interface MovieCardProps {
   movie: Movie;
   onClick?: () => void;
 }
 
-export default function MovieCard({ movie, onClick }: MovieCardProps) {
-  const poster = movie.Poster && movie.Poster !== "N/A"
-    ? movie.Poster
-    : "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='900'><rect width='100%' height='100%' fill='%23e2e8f0'/><text x='50%' y='50%' font-size='24' text-anchor='middle' fill='%239ca3af' font-family='Arial' dy='.3em'>No poster</text></svg>";
-
+export default function MovieCard({movie, onClick}: MovieCardProps) {
   return (
     <article
       onClick={onClick}
@@ -17,11 +14,10 @@ export default function MovieCard({ movie, onClick }: MovieCardProps) {
       aria-label={`${movie.Title} (${movie.Year})`}
     >
       <div className="aspect-2/3 w-full bg-gray-100">
-        <img
-          src={poster}
-          alt={`${movie.Title} poster`}
+        <Poster
+          src={movie.Poster}
+          title={movie.Title}
           className="w-full h-full object-cover"
-          loading="lazy"
         />
       </div>
       <div className="mt-2 px-2">
