@@ -1,10 +1,11 @@
+import {Routes, Route} from 'react-router-dom';
 import {Home} from '@/views';
 
 export default function App() {
   return (
-    <>
-      <Home />
-    </>
+    <Routes>
+      <Route path="/" element={<Home />} />
+    </Routes>
   );
 }
 
