@@ -3,6 +3,8 @@ import {useParams} from 'react-router-dom';
 import {getMovieById} from '@/api/movieService';
 import {Poster} from '@/components';
 import type {MovieDetail} from '@/types/Movie';
+import {StarIcon as StarSolid} from '@heroicons/react/24/solid';
+import {StarIcon as StarOutline} from '@heroicons/react/24/outline';
 
 export default function MovieDetail() {
   const {id} = useParams<{id: string}>();
@@ -72,7 +74,22 @@ export default function MovieDetail() {
           className="w-full md:w-1/3 rounded-lg shadow-lg object-cover"
         />
         <div className="flex-1">
-          <h1 className="text-3xl font-bold mb-4">{movie.Title}</h1>
+          <div className="flex items-center gap-2 mb-4">
+            <h1 className="text-3xl font-bold">{movie.Title}</h1>
+            <button
+              onClick={toggleFavorite}
+              className="p-1 rounded-full hover:opacity-80"
+              aria-label={
+                isFavorite ? 'Remove from Favorites' : 'Add to Favorites'
+              }
+            >
+              {isFavorite ? (
+                <StarSolid className="w-6 h-6 text-yellow-400" />
+              ) : (
+                <StarOutline className="w-6 h-6 text-gray-400 dark:text-gray-200" />
+              )}
+            </button>
+          </div>
           <p className="text-gray-500 mb-2">
             {movie.Year} | {movie.Type}
           </p>
@@ -81,15 +98,6 @@ export default function MovieDetail() {
           <p className="mb-2">Genre: {movie.Genre || 'N/A'}</p>
           <p className="mb-2">Runtime: {movie.Runtime || 'N/A'}</p>
           <p className="mt-4">{movie.Plot || 'No plot available.'}</p>
-
-          <button
-            onClick={toggleFavorite}
-            className={`mt-4 px-4 py-2 rounded-lg ${
-              isFavorite ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'
-            } hover:opacity-80`}
-          >
-            {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
-          </button>
         </div>
       </div>
     </div>
