@@ -90,14 +90,15 @@ export default function MovieDetail() {
               )}
             </button>
           </div>
-          <p className="text-gray-500 mb-2">
-            {movie.Year} | {movie.Type}
-          </p>
-          <p className="mb-2">Director: {movie.Director || 'N/A'}</p>
-          <p className="mb-2">Actors: {movie.Actors || 'N/A'}</p>
-          <p className="mb-2">Genre: {movie.Genre || 'N/A'}</p>
-          <p className="mb-2">Runtime: {movie.Runtime || 'N/A'}</p>
-          <p className="mt-4">{movie.Plot || 'No plot available.'}</p>
+
+          <p className="text-gray-500 mb-2">{movie.Year} | {movie.Type}</p>
+
+          {movie.Director && <p className="mb-2">Director: {movie.Director}</p>}
+          {movie.Actors && <p className="mb-2">Actors: {movie.Actors}</p>}
+          {movie.Genre && <p className="mb-2">Genre: {movie.Genre}</p>}
+          {movie.Runtime && <p className="mb-2">Runtime: {movie.Runtime}</p>}
+
+          {movie.Plot && <p className="mt-4">{movie.Plot}</p>}
         </div>
       </div>
     </div>
