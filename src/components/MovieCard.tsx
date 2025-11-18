@@ -43,7 +43,7 @@ export default function MovieCard({ movie, onClick }: MovieCardProps) {
         </h3>
       </div>
       {movie.Year && (
-        <p className="text-xs text-slate-500 mt-1">{movie.Year}</p>
+        <p className="text-xs text-center text-slate-500 mt-1">{movie.Year}</p>
       )}
     </article>
   );

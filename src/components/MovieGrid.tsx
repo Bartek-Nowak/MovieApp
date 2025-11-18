@@ -88,12 +88,12 @@ export default function MovieGrid({initialMovies, query}: MovieGridProps) {
           placeholder="Filter by year"
           value={yearFilter}
           onChange={(e) => setYearFilter(e.target.value)}
-          className="w-24 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 sm:w-32 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
-          className="w-32 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 sm:w-32 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">All types</option>
           {MOVIE_TYPES.map((t) => (
