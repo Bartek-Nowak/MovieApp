@@ -1,23 +1,84 @@
-import { useState, useMemo } from "react";
-import type { Movie } from "@/types/Movie";
-import { MovieCard } from "@/components";
-import { MOVIE_TYPES } from "@/constants/movie";
+import {useState, useEffect, useRef, useCallback} from 'react';
+import {useNavigate} from 'react-router-dom';
+import type {Movie} from '@/types/Movie';
+import {MovieCard} from '@/components';
+import {MOVIE_TYPES} from '@/constants/movie';
+import {searchMovies as apiSearchMovies} from '@/api/movieService';
 
 interface MovieGridProps {
-  movies: Movie[];
+  initialMovies: Movie[];
+  query: string;
 }
 
-export default function MovieGrid({ movies }: MovieGridProps) {
-  const [yearFilter, setYearFilter] = useState("");
-  const [typeFilter, setTypeFilter] = useState("");
+export default function MovieGrid({initialMovies, query}: MovieGridProps) {
+  const navigate = useNavigate();
+  const [movies, setMovies] = useState<Movie[]>(initialMovies);
+  const [yearFilter, setYearFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredMovies = useMemo(() => {
-    return movies.filter((movie) => {
-      const matchYear = yearFilter ? movie.Year === yearFilter : true;
-      const matchType = typeFilter ? movie.Type === typeFilter : true;
-      return matchYear && matchType;
-    });
-  }, [movies, yearFilter, typeFilter]);
+  const observerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    setMovies(initialMovies);
+    setPage(1);
+    setHasMore(true);
+  }, [initialMovies, query]);
+
+  const filteredMovies = movies.filter((movie) => {
+    const matchYear = yearFilter ? movie.Year === yearFilter : true;
+    const matchType = typeFilter ? movie.Type === typeFilter : true;
+    return matchYear && matchType;
+  });
+
+  const loadMore = useCallback(async () => {
+    if (!hasMore || loading) return;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const nextPage = page + 1;
+      const data = await apiSearchMovies(query, {}, nextPage);
+
+      if (data.Search?.length) {
+        setMovies((prev) => [...prev, ...data.Search]);
+        setPage(nextPage);
+        const totalPages = Math.ceil(Number(data.totalResults) / 10);
+        if (nextPage >= totalPages) setHasMore(false);
+      } else {
+        setHasMore(false);
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Failed to load more movies.');
+    } finally {
+      setLoading(false);
+    }
+  }, [hasMore, loading, page, query]);
+
+  useEffect(() => {
+    if (!observerRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMore();
+        }
+      },
+      {rootMargin: '200px'}
+    );
+    observer.observe(observerRef.current);
+
+    return () => {
+      if (observerRef.current) observer.unobserve(observerRef.current);
+    };
+  }, [loadMore]);
+
+  const handleCardClick = (id: string) => {
+    navigate(`/media/${id}`);
+  };
 
   return (
     <div>
@@ -27,7 +88,7 @@ export default function MovieGrid({ movies }: MovieGridProps) {
           placeholder="Filter by year"
           value={yearFilter}
           onChange={(e) => setYearFilter(e.target.value)}
-          className="w-32 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-24 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <select
           value={typeFilter}
@@ -48,10 +109,23 @@ export default function MovieGrid({ movies }: MovieGridProps) {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredMovies.map((movie) => (
-            <MovieCard key={movie.imdbID} movie={movie} />
+            <MovieCard
+              key={movie.imdbID}
+              movie={movie}
+              onClick={() => handleCardClick(movie.imdbID)}
+            />
           ))}
         </div>
       )}
+
+      <div ref={observerRef} />
+
+      {loading && (
+        <p className="text-center text-slate-500 mt-4">
+          Loading more movies...
+        </p>
+      )}
+      {error && <p className="text-red-500 mt-2 text-center">{error}</p>}
     </div>
   );
 }

@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { MovieSearchForm, MovieGrid } from "@/components";
-import type { Movie } from "@/types/Movie";
+import {useMovieContext} from '@/context/MovieContext';
+import {MovieSearchForm} from '@/components';
+import MovieGrid from '@/components/MovieGrid';
 
 export default function Home() {
-  const [results, setResults] = useState<Movie[]>([]);
+  const {results, setResults, query, setQuery} = useMovieContext();
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -11,9 +11,16 @@ export default function Home() {
         Movie Search
       </h1>
 
-      <MovieSearchForm onResults={setResults} />
+      <MovieSearchForm
+        onResults={(movies) => {
+          setResults(movies);
+          setQuery(movies.length > 0 ? movies[0].Title ?? '' : '');
+        }}
+      />
 
-      <MovieGrid movies={results} />
+      {results.length > 0 && (
+        <MovieGrid initialMovies={results} query={query} />
+      )}
     </div>
   );
 }
