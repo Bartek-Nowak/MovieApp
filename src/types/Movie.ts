@@ -20,7 +20,3 @@ export interface MovieDetail extends Movie {
   imdbRating?: string;
   imdbVotes?: string;
 }
-
-export interface MovieSearchFormProps {
-  onResults: (results: Movie[], query: string) => void;
-}

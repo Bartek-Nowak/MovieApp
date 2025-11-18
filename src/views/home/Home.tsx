@@ -1,29 +1,85 @@
-import { useEffect } from 'react';
-import { useMovieContext } from '@/context/MovieContext';
-import { MovieSearchForm } from '@/components';
+import {useState, useEffect, useRef, useCallback} from 'react';
+import {useMovieContext} from '@/context/MovieContext';
+import {MovieSearchForm} from '@/components';
 import MovieGrid from '@/components/MovieGrid';
+import {searchMovies as apiSearchMovies} from '@/api/movieService';
+import {useGlobalUI} from '@/context/GlobalUIContext';
 
 export default function Home() {
-  const { results, setResults, query, setQuery } = useMovieContext();
+  const {results, setResults, query, setQuery} = useMovieContext();
+  const {setLoading, setError} = useGlobalUI();
+
+  const [year, setYear] = useState('');
+  const [type, setType] = useState('');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+  const observerRef = useRef<HTMLDivElement | null>(null);
+  const isFetchingRef = useRef(false);
+
+  const fetchMovies = useCallback(
+    async (q: string, y?: string, t?: string, reset = false) => {
+      if (!q || isFetchingRef.current) return;
+      isFetchingRef.current = true;
+      setLoading(true);
+      setError(null);
+
+      try {
+        const nextPage = reset ? 1 : page;
+        const params: Record<string, string> = {};
+        if (y) params.y = y;
+        if (t) params.type = t;
+
+        const data = await apiSearchMovies(q, params, nextPage);
+
+        if (data.Search?.length) {
+          setResults((prev) =>
+            reset ? data.Search : [...prev, ...data.Search]
+          );
+          setPage(nextPage + 1);
+
+          const totalPages = Math.ceil(Number(data.totalResults) / 10);
+          setHasMore(nextPage < totalPages);
+        } else {
+          if (reset) setResults([]);
+          setHasMore(false);
+          if (data.Error) setError(data.Error);
+        }
+      } catch (err) {
+        console.error(err);
+        setError('Failed to load movies.');
+      } finally {
+        setLoading(false);
+        isFetchingRef.current = false;
+      }
+    },
+    [page, setResults, setLoading, setError]
+  );
+
+  const handleSearch = (searchQuery: string, y?: string, t?: string) => {
+    setQuery(searchQuery);
+    setYear(y || '');
+    setType(t || '');
+    setPage(1);
+    setHasMore(true);
+    fetchMovies(searchQuery, y, t, true);
+  };
 
   useEffect(() => {
-    document.title = query ? `${query} - Movie Search` : 'Movie Search';
+    if (!observerRef.current) return;
 
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.setAttribute(
-        'content',
-        query
-          ? `Search results for "${query}" in Movie App`
-          : 'Search for movies in Movie App'
-      );
-    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isFetchingRef.current) {
+          fetchMovies(query, year, type);
+        }
+      },
+      {rootMargin: '200px'}
+    );
 
-    const metaKeywords = document.querySelector('meta[name="keywords"]');
-    if (metaKeywords) {
-      metaKeywords.setAttribute('content', query || 'movies, film, search');
-    }
-  }, [query]);
+    observer.observe(observerRef.current);
+    return () => observer.disconnect();
+  }, [query, year, type, hasMore, fetchMovies]);
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-8">
@@ -35,12 +91,7 @@ export default function Home() {
         <h2 id="movie-search-form" className="sr-only">
           Search Movies
         </h2>
-        <MovieSearchForm
-          onResults={(movies: any[], searchQuery: string) => {
-            setResults(movies);
-            setQuery(searchQuery);
-          }}
-        />
+        <MovieSearchForm onResults={handleSearch} />
       </section>
 
       {results.length > 0 && (
@@ -49,7 +100,8 @@ export default function Home() {
           aria-label="Search results"
           className="mt-6"
         >
-          <MovieGrid initialMovies={results} query={query} />
+          <MovieGrid />
+          <div ref={observerRef} />
         </section>
       )}
     </main>

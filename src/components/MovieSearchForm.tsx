@@ -1,38 +1,22 @@
-import type {FormEvent} from 'react';
-import {searchMovies as apiSearchMovies} from '@/api/movieService';
-import {useGlobalUI} from '@/context/GlobalUIContext';
+import {useState, type FormEvent} from 'react';
 import {useMovieContext} from '@/context/MovieContext';
-import type {MovieSearchFormProps} from '@/types/Movie';
+import {MOVIE_TYPES} from '@/constants/movie';
+
+export interface MovieSearchFormProps {
+  onResults: (searchQuery: string, year?: string, type?: string) => void;
+}
 
 export default function MovieSearchForm({onResults}: MovieSearchFormProps) {
-  const {setLoading, setError} = useGlobalUI();
-  const {query, setQuery, setResults} = useMovieContext();
+  const {query, setQuery} = useMovieContext();
+  const [year, setYear] = useState('');
+  const [type, setType] = useState('');
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const trimmedQuery = query.trim();
     if (!trimmedQuery) return;
 
-    setLoading(true);
-    setError(null);
-
-    try {
-      const data = await apiSearchMovies(trimmedQuery);
-
-      if (data.Search) {
-        setResults(data.Search);
-        onResults(data.Search, trimmedQuery);
-      } else {
-        setResults([]);
-        onResults([], trimmedQuery);
-        setError(data.Error || 'No results found.');
-      }
-    } catch (err) {
-      console.error(err);
-      setError('Failed to fetch movies.');
-    } finally {
-      setLoading(false);
-    }
+    onResults(trimmedQuery, year, type);
   };
 
   return (
@@ -42,22 +26,38 @@ export default function MovieSearchForm({onResults}: MovieSearchFormProps) {
       role="search"
       aria-label="Search movies"
     >
-      <label htmlFor="movie-search" className="sr-only">
-        Search movies
-      </label>
       <input
-        id="movie-search"
         type="text"
         placeholder="Search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500"
+        className="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
+
+      <input
+        type="text"
+        placeholder="Year"
+        value={year}
+        onChange={(e) => setYear(e.target.value)}
+        className="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+
+      <select
+        value={type}
+        onChange={(e) => setType(e.target.value)}
+        className="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="">All types</option>
+        {MOVIE_TYPES.map((t) => (
+          <option key={t.value} value={t.value}>
+            {t.label}
+          </option>
+        ))}
+      </select>
 
       <button
         type="submit"
-        className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500"
-        aria-label="Search movies"
+        className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         Search
       </button>
