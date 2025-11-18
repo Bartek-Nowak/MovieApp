@@ -83,17 +83,26 @@ export default function MovieGrid({initialMovies, query}: MovieGridProps) {
   return (
     <div>
       <div className="flex flex-col sm:flex-row gap-2 mb-4">
+        <label htmlFor="filter-year" className="sr-only">
+          Filter by year
+        </label>
         <input
+          id="filter-year"
           type="text"
           placeholder="Filter by year"
           value={yearFilter}
           onChange={(e) => setYearFilter(e.target.value)}
-          className="flex-1 sm:w-32 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 sm:w-32 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus-visible:outline-none"
         />
+
+        <label htmlFor="filter-type" className="sr-only">
+          Filter by type
+        </label>
         <select
+          id="filter-type"
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
-          className="flex-1 sm:w-32 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 sm:w-32 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus-visible:outline-none"
         >
           <option value="">All types</option>
           {MOVIE_TYPES.map((t) => (
@@ -105,7 +114,13 @@ export default function MovieGrid({initialMovies, query}: MovieGridProps) {
       </div>
 
       {filteredMovies.length === 0 ? (
-        <p className="text-center text-slate-500 mt-8">No movies found.</p>
+        <p
+          className="text-center text-slate-500 mt-8"
+          role="status"
+          aria-live="polite"
+        >
+          No movies found.
+        </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredMovies.map((movie) => (
@@ -121,11 +136,19 @@ export default function MovieGrid({initialMovies, query}: MovieGridProps) {
       <div ref={observerRef} />
 
       {loading && (
-        <p className="text-center text-slate-500 mt-4">
+        <p
+          className="text-center text-slate-500 mt-4"
+          role="status"
+          aria-live="polite"
+        >
           Loading more movies...
         </p>
       )}
-      {error && <p className="text-red-500 mt-2 text-center">{error}</p>}
+      {error && (
+        <p className="text-red-500 mt-2 text-center" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

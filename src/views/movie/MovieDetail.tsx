@@ -24,11 +24,10 @@ export default function MovieDetail() {
         const data = await getMovieById(id);
         if (data.Response === 'True') {
           setMovie(data);
-
-          const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
-          setIsFavorite(
-            favs.some((m: MovieDetail) => m.imdbID === data.imdbID)
+          const favs: MovieDetail[] = JSON.parse(
+            localStorage.getItem('favorites') || '[]'
           );
+          setIsFavorite(favs.some((m) => m.imdbID === data.imdbID));
         } else {
           setError(data.Error || 'MovieDetail not found.');
         }
@@ -66,8 +65,11 @@ export default function MovieDetail() {
   if (!movie) return null;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="flex flex-col md:flex-row gap-6">
+    <main className="max-w-4xl mx-auto px-4 py-8">
+      <section
+        aria-labelledby="movie-title"
+        className="flex flex-col md:flex-row gap-6"
+      >
         <Poster
           src={movie.Poster}
           title={movie.Title}
@@ -75,7 +77,9 @@ export default function MovieDetail() {
         />
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-4">
-            <h1 className="text-3xl font-bold">{movie.Title}</h1>
+            <h1 id="movie-title" className="text-3xl font-bold">
+              {movie.Title}
+            </h1>
             <button
               onClick={toggleFavorite}
               className="p-1 rounded-full hover:opacity-80"
@@ -91,7 +95,9 @@ export default function MovieDetail() {
             </button>
           </div>
 
-          <p className="text-gray-500 mb-2">{movie.Year} | {movie.Type}</p>
+          <p className="text-gray-500 mb-2">
+            {movie.Year} | {movie.Type}
+          </p>
 
           {movie.Director && <p className="mb-2">Director: {movie.Director}</p>}
           {movie.Actors && <p className="mb-2">Actors: {movie.Actors}</p>}
@@ -100,7 +106,7 @@ export default function MovieDetail() {
 
           {movie.Plot && <p className="mt-4">{movie.Plot}</p>}
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

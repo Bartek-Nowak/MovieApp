@@ -21,16 +21,22 @@ export function GlobalUIProvider({children}: {children: ReactNode}) {
       {children}
 
       {error && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-red-600 text-white rounded-lg shadow-lg z-50">
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="fixed top-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-red-600 text-white rounded-lg shadow-lg z-50"
+        >
           {error}
         </div>
       )}
 
       {loading && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-40">
-          <div className="bg-white px-6 py-4 rounded-lg shadow animate-pulse">
-            Loading...
-          </div>
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-40"
+        >
+          <div className="bg-white px-6 py-4 rounded-lg shadow">Loading...</div>
         </div>
       )}
     </GlobalUIContext.Provider>
