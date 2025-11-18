@@ -20,8 +20,23 @@ export default function FavoritesPage() {
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-8" aria-label="Favorites list">
+      <title>Favorites - Movie App</title>
+      <meta
+        name="description"
+        content="Your favorite movies saved in Movie App."
+      />
+      <meta
+        name="keywords"
+        content="favorites, movies, saved movies, Movie App"
+      />
+
       <h1 className="text-3xl font-bold mb-8 text-center">Favorites</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+      <section
+        aria-label="Favorite movies"
+        aria-live="polite"
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+      >
         {favorites.map((movie) => (
           <MovieCard
             key={movie.imdbID}
@@ -29,7 +44,7 @@ export default function FavoritesPage() {
             onClick={() => navigate(`/media/${movie.imdbID}`)}
           />
         ))}
-      </div>
+      </section>
     </main>
   );
 }

@@ -22,5 +22,5 @@ export interface MovieDetail extends Movie {
 }
 
 export interface MovieSearchFormProps {
-  onResults: (results: Movie[]) => void;
+  onResults: (results: Movie[], query: string) => void;
 }

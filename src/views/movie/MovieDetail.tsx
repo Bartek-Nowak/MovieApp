@@ -19,7 +19,6 @@ export default function MovieDetail() {
     const fetchMovie = async () => {
       setLoading(true);
       setError(null);
-
       try {
         const data = await getMovieById(id);
         if (data.Response === 'True') {
@@ -42,9 +41,18 @@ export default function MovieDetail() {
     fetchMovie();
   }, [id]);
 
+  useEffect(() => {
+    if (!movie) return;
+    document.title = `${movie.Title} - Movie App`;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc)
+      metaDesc.setAttribute('content', movie.Plot || 'Movie details');
+    const metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (metaKeywords) metaKeywords.setAttribute('content', movie.Genre || '');
+  }, [movie]);
+
   const toggleFavorite = () => {
     if (!movie) return;
-
     const favs: MovieDetail[] = JSON.parse(
       localStorage.getItem('favorites') || '[]'
     );
@@ -76,7 +84,7 @@ export default function MovieDetail() {
           className="w-full md:w-1/3 rounded-lg shadow-lg object-cover"
         />
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-4">
+          <header className="flex items-center gap-2 mb-4">
             <h1 id="movie-title" className="text-3xl font-bold">
               {movie.Title}
             </h1>
@@ -93,16 +101,40 @@ export default function MovieDetail() {
                 <StarOutline className="w-6 h-6 text-gray-400 dark:text-gray-200" />
               )}
             </button>
-          </div>
+          </header>
 
-          <p className="text-gray-500 mb-2">
-            {movie.Year} | {movie.Type}
-          </p>
-
-          {movie.Director && <p className="mb-2">Director: {movie.Director}</p>}
-          {movie.Actors && <p className="mb-2">Actors: {movie.Actors}</p>}
-          {movie.Genre && <p className="mb-2">Genre: {movie.Genre}</p>}
-          {movie.Runtime && <p className="mb-2">Runtime: {movie.Runtime}</p>}
+          <dl className="text-gray-700 dark:text-gray-200">
+            <div className="mb-2">
+              <dt className="inline font-semibold">Year / Type:</dt>{' '}
+              <dd className="inline text-gray-500">
+                {movie.Year} | {movie.Type}
+              </dd>
+            </div>
+            {movie.Director && (
+              <div className="mb-2">
+                <dt className="inline font-semibold">Director:</dt>{' '}
+                <dd className="inline">{movie.Director}</dd>
+              </div>
+            )}
+            {movie.Actors && (
+              <div className="mb-2">
+                <dt className="inline font-semibold">Actors:</dt>{' '}
+                <dd className="inline">{movie.Actors}</dd>
+              </div>
+            )}
+            {movie.Genre && (
+              <div className="mb-2">
+                <dt className="inline font-semibold">Genre:</dt>{' '}
+                <dd className="inline">{movie.Genre}</dd>
+              </div>
+            )}
+            {movie.Runtime && (
+              <div className="mb-2">
+                <dt className="inline font-semibold">Runtime:</dt>{' '}
+                <dd className="inline">{movie.Runtime}</dd>
+              </div>
+            )}
+          </dl>
 
           {movie.Plot && <p className="mt-4">{movie.Plot}</p>}
         </div>

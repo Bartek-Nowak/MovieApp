@@ -10,18 +10,19 @@ export default function MovieSearchForm({onResults}: MovieSearchFormProps) {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!query.trim()) return;
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) return;
 
     setLoading(true);
     setError(null);
 
     try {
-      const data = await apiSearchMovies(query);
+      const data = await apiSearchMovies(trimmedQuery);
 
       if (data.Search) {
-        onResults(data.Search);
+        onResults(data.Search, trimmedQuery);
       } else {
-        onResults([]);
+        onResults([], trimmedQuery);
         setError(data.Error || 'No results found.');
       }
     } catch (err) {
