@@ -1,17 +1,18 @@
-import {useEffect, useState} from 'react';
-import {useParams} from 'react-router-dom';
-import {getMovieById} from '@/api/movieService';
-import {Poster} from '@/components';
-import type {MovieDetail} from '@/types/Movie';
-import {StarIcon as StarSolid} from '@heroicons/react/24/solid';
-import {StarIcon as StarOutline} from '@heroicons/react/24/outline';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { getMovieById } from '@/api/movieService';
+import { Poster } from '@/components';
+import type { MovieDetail } from '@/types/Movie';
+import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
+import { StarIcon as StarOutline } from '@heroicons/react/24/outline';
+import { useGlobalUI } from '@/context/GlobalUIContext';
 
 export default function MovieDetail() {
-  const {id} = useParams<{id: string}>();
+  const { id } = useParams<{ id: string }>();
   const [movie, setMovie] = useState<MovieDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
+
+  const { setLoading, setError } = useGlobalUI();
 
   useEffect(() => {
     if (!id) return;
@@ -28,7 +29,7 @@ export default function MovieDetail() {
           );
           setIsFavorite(favs.some((m) => m.imdbID === data.imdbID));
         } else {
-          setError(data.Error || 'MovieDetail not found.');
+          setError(data.Error || 'Movie not found.');
         }
       } catch (err) {
         console.error(err);
@@ -39,7 +40,7 @@ export default function MovieDetail() {
     };
 
     fetchMovie();
-  }, [id]);
+  }, [id, setLoading, setError]);
 
   useEffect(() => {
     if (!movie) return;
@@ -68,8 +69,6 @@ export default function MovieDetail() {
     }
   };
 
-  if (loading) return <p className="text-center mt-8">Loading...</p>;
-  if (error) return <p className="text-center mt-8 text-red-500">{error}</p>;
   if (!movie) return null;
 
   return (
