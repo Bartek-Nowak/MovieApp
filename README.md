@@ -1,4 +1,4 @@
-# IMDB
+# Movie App
 This project is a React application built with Vite, TypeScript, and Tailwind CSS. It includes a movie card component and Axios for API requests.
 
 ## Setup
