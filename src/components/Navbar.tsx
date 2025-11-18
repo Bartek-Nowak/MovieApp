@@ -30,7 +30,7 @@ export default function Navbar() {
                     aria-current={isActive ? 'page' : undefined}
                     className={`px-3 py-2 rounded-md font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                       isActive
-                        ? 'bg-blue-500 text-white'
+                        ? 'bg-blue-700 text-white'
                         : 'text-slate-700 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-800'
                     }`}
                   >

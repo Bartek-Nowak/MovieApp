@@ -1,16 +1,26 @@
+import {useEffect, useState, memo} from 'react';
 import Poster from './Poster';
 import type {Movie} from '@/types/Movie';
-import {StarIcon as StarSolid} from '@heroicons/react/24/solid';
-import {StarIcon as StarOutline} from '@heroicons/react/24/outline';
-import {useEffect, useState} from 'react';
 
 interface MovieCardProps {
   movie: Movie;
   onClick?: () => void;
 }
 
-export default function MovieCard({movie, onClick}: MovieCardProps) {
+const MovieCard = ({movie, onClick}: MovieCardProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
+
+  const [StarSolid, setStarSolid] = useState<React.FC<any> | null>(null);
+  const [StarOutline, setStarOutline] = useState<React.FC<any> | null>(null);
+
+  useEffect(() => {
+    import('@heroicons/react/24/solid').then((mod) =>
+      setStarSolid(() => mod.StarIcon)
+    );
+    import('@heroicons/react/24/outline').then((mod) =>
+      setStarOutline(() => mod.StarIcon)
+    );
+  }, []);
 
   useEffect(() => {
     const favs: Movie[] = JSON.parse(localStorage.getItem('favorites') || '[]');
@@ -43,11 +53,13 @@ export default function MovieCard({movie, onClick}: MovieCardProps) {
           className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white flex items-center justify-center"
           aria-hidden="true"
         >
-          {isFavorite ? (
-            <StarSolid className="w-5 h-5 text-yellow-400" />
-          ) : (
-            <StarOutline className="w-5 h-5 text-gray-300 dark:text-gray-400" />
-          )}
+          {StarSolid &&
+            StarOutline &&
+            (isFavorite ? (
+              <StarSolid className="w-5 h-5 text-yellow-400" />
+            ) : (
+              <StarOutline className="w-5 h-5 text-gray-300 dark:text-gray-400" />
+            ))}
         </div>
       </div>
       <div className="mt-2 px-2 flex items-center justify-between">
@@ -60,4 +72,6 @@ export default function MovieCard({movie, onClick}: MovieCardProps) {
       )}
     </article>
   );
-}
+};
+
+export default memo(MovieCard);

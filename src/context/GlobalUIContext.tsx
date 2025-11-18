@@ -58,7 +58,7 @@ export function GlobalUIProvider({children}: {children: ReactNode}) {
           aria-live="polite"
           className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-40"
         >
-          <div className="bg-white px-6 py-4 rounded-lg shadow">Loading...</div>
+          <div className="bg-white px-6 py-4 rounded-lg shadow text-black">Loading...</div>
         </div>
       )}
     </GlobalUIContext.Provider>

@@ -1,9 +1,11 @@
-import {useState, useEffect, useRef, useCallback} from 'react';
+import {useState, useEffect, useRef, useCallback, lazy, Suspense} from 'react';
 import {useNavigate} from 'react-router-dom';
 import type {Movie} from '@/types/Movie';
-import {MovieCard} from '@/components';
 import {MOVIE_TYPES} from '@/constants/movie';
 import {searchMovies as apiSearchMovies} from '@/api/movieService';
+import {useGlobalUI} from '@/context/GlobalUIContext';
+
+const MovieCard = lazy(() => import('@/components/MovieCard'));
 
 interface MovieGridProps {
   initialMovies: Movie[];
@@ -17,18 +19,17 @@ export default function MovieGrid({initialMovies, query}: MovieGridProps) {
   const [typeFilter, setTypeFilter] = useState('');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const observerRef = useRef<HTMLDivElement | null>(null);
-  const isFetchingRef = useRef(false); // blokada podwójnych fetchy
+  const isFetchingRef = useRef(false);
 
-  // Reset danych przy nowym query
+  const {loading, setLoading, setError} = useGlobalUI();
+
   useEffect(() => {
     setMovies(initialMovies);
     setPage(1);
     setHasMore(true);
-    isFetchingRef.current = false; // reset flagi
+    isFetchingRef.current = false;
   }, [initialMovies, query]);
 
   const filteredMovies = movies.filter((movie) => {
@@ -63,9 +64,8 @@ export default function MovieGrid({initialMovies, query}: MovieGridProps) {
       setLoading(false);
       isFetchingRef.current = false;
     }
-  }, [hasMore, loading, page, query]);
+  }, [hasMore, loading, page, query, setLoading, setError]);
 
-  // IntersectionObserver do infinite scroll
   useEffect(() => {
     if (!observerRef.current) return;
 
@@ -90,9 +90,6 @@ export default function MovieGrid({initialMovies, query}: MovieGridProps) {
   return (
     <div>
       <div className="flex flex-col sm:flex-row gap-2 mb-4">
-        <label htmlFor="filter-year" className="sr-only">
-          Filter by year
-        </label>
         <input
           id="filter-year"
           type="text"
@@ -102,9 +99,6 @@ export default function MovieGrid({initialMovies, query}: MovieGridProps) {
           className="flex-1 sm:w-32 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus-visible:outline-none"
         />
 
-        <label htmlFor="filter-type" className="sr-only">
-          Filter by type
-        </label>
         <select
           id="filter-type"
           value={typeFilter}
@@ -130,32 +124,19 @@ export default function MovieGrid({initialMovies, query}: MovieGridProps) {
         </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredMovies.map((movie) => (
-            <MovieCard
-              key={movie.imdbID}
-              movie={movie}
-              onClick={() => handleCardClick(movie.imdbID)}
-            />
-          ))}
+          <Suspense fallback={<div>Loading movies...</div>}>
+            {filteredMovies.map((movie) => (
+              <MovieCard
+                key={movie.imdbID}
+                movie={movie}
+                onClick={() => handleCardClick(movie.imdbID)}
+              />
+            ))}
+          </Suspense>
         </div>
       )}
 
       <div ref={observerRef} />
-
-      {loading && (
-        <p
-          className="text-center text-slate-500 mt-4"
-          role="status"
-          aria-live="polite"
-        >
-          Loading more movies...
-        </p>
-      )}
-      {error && (
-        <p className="text-red-500 mt-2 text-center" role="alert">
-          {error}
-        </p>
-      )}
     </div>
   );
 }

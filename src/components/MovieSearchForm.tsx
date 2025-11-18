@@ -1,12 +1,12 @@
-import {useState} from 'react';
 import type {FormEvent} from 'react';
 import {searchMovies as apiSearchMovies} from '@/api/movieService';
 import {useGlobalUI} from '@/context/GlobalUIContext';
+import {useMovieContext} from '@/context/MovieContext';
 import type {MovieSearchFormProps} from '@/types/Movie';
 
 export default function MovieSearchForm({onResults}: MovieSearchFormProps) {
   const {setLoading, setError} = useGlobalUI();
-  const [query, setQuery] = useState('');
+  const {query, setQuery, setResults} = useMovieContext();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -20,8 +20,10 @@ export default function MovieSearchForm({onResults}: MovieSearchFormProps) {
       const data = await apiSearchMovies(trimmedQuery);
 
       if (data.Search) {
+        setResults(data.Search);
         onResults(data.Search, trimmedQuery);
       } else {
+        setResults([]);
         onResults([], trimmedQuery);
         setError(data.Error || 'No results found.');
       }
@@ -54,7 +56,7 @@ export default function MovieSearchForm({onResults}: MovieSearchFormProps) {
 
       <button
         type="submit"
-        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500"
+        className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500"
         aria-label="Search movies"
       >
         Search
