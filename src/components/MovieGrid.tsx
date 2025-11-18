@@ -21,11 +21,14 @@ export default function MovieGrid({initialMovies, query}: MovieGridProps) {
   const [error, setError] = useState<string | null>(null);
 
   const observerRef = useRef<HTMLDivElement | null>(null);
+  const isFetchingRef = useRef(false); // blokada podwójnych fetchy
 
+  // Reset danych przy nowym query
   useEffect(() => {
     setMovies(initialMovies);
     setPage(1);
     setHasMore(true);
+    isFetchingRef.current = false; // reset flagi
   }, [initialMovies, query]);
 
   const filteredMovies = movies.filter((movie) => {
@@ -35,7 +38,9 @@ export default function MovieGrid({initialMovies, query}: MovieGridProps) {
   });
 
   const loadMore = useCallback(async () => {
-    if (!hasMore || loading) return;
+    if (!hasMore || loading || isFetchingRef.current) return;
+
+    isFetchingRef.current = true;
     setLoading(true);
     setError(null);
 
@@ -56,11 +61,14 @@ export default function MovieGrid({initialMovies, query}: MovieGridProps) {
       setError('Failed to load more movies.');
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
   }, [hasMore, loading, page, query]);
 
+  // IntersectionObserver do infinite scroll
   useEffect(() => {
     if (!observerRef.current) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
@@ -69,11 +77,10 @@ export default function MovieGrid({initialMovies, query}: MovieGridProps) {
       },
       {rootMargin: '200px'}
     );
+
     observer.observe(observerRef.current);
 
-    return () => {
-      if (observerRef.current) observer.unobserve(observerRef.current);
-    };
+    return () => observer.disconnect();
   }, [loadMore]);
 
   const handleCardClick = (id: string) => {
