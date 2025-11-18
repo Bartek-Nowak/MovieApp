@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { MovieSearchForm } from "@/components";
+import { MovieSearchForm, MovieGrid } from "@/components";
 import type { Movie } from "@/types/Movie";
-import { MovieCard } from "@/components";
 
 export default function Home() {
   const [results, setResults] = useState<Movie[]>([]);
@@ -14,15 +13,7 @@ export default function Home() {
 
       <MovieSearchForm onResults={setResults} />
 
-      {results.length === 0 ? (
-        <p className="text-center text-slate-500 mt-8">No movies found.</p>
-      ) : (
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {results.map((movie) => (
-            <MovieCard key={movie.imdbID} movie={movie} />
-          ))}
-        </div>
-      )}
+      <MovieGrid movies={results} />
     </div>
   );
 }

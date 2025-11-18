@@ -3,6 +3,7 @@ export interface Movie {
   Poster?: string;
   Year?: string | number;
   imdbID?: string;
+  Type: string;
 }
 
 export interface MovieSearchFormProps {
