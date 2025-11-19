@@ -82,28 +82,33 @@ export default function Home() {
   }, [query, year, type, hasMore, fetchMovies]);
 
   return (
-    <main className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl sm:text-4xl font-bold text-center mb-8 text-slate-900 dark:text-slate-100">
-        Movie Search
-      </h1>
+    <>
+      <head>
+        <title>{query ? `MovieApp - ${query}` : 'MovieApp'}</title>
+      </head>
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        <h1 className="text-3xl sm:text-4xl font-bold text-center mb-8 text-slate-900 dark:text-slate-100">
+          Movie Search
+        </h1>
 
-      <section aria-labelledby="movie-search-form" className="mb-4">
-        <h2 id="movie-search-form" className="sr-only">
-          Search Movies
-        </h2>
-        <MovieSearchForm onResults={handleSearch} />
-      </section>
-
-      {results.length > 0 && (
-        <section
-          aria-live="polite"
-          aria-label="Search results"
-          className="mt-6"
-        >
-          <MovieGrid />
-          <div ref={observerRef} />
+        <section aria-labelledby="movie-search-form" className="mb-4">
+          <h2 id="movie-search-form" className="sr-only">
+            Search Movies
+          </h2>
+          <MovieSearchForm onResults={handleSearch} />
         </section>
-      )}
-    </main>
+
+        {results.length > 0 && (
+          <section
+            aria-live="polite"
+            aria-label="Search results"
+            className="mt-6"
+          >
+            <MovieGrid />
+            <div ref={observerRef} />
+          </section>
+        )}
+      </main>
+    </>
   );
 }
