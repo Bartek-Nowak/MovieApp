@@ -1,18 +1,18 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { getMovieById } from '@/api/movieService';
-import { Poster } from '@/components';
-import type { MovieDetail } from '@/types/Movie';
-import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
-import { StarIcon as StarOutline } from '@heroicons/react/24/outline';
-import { useGlobalUI } from '@/context/GlobalUIContext';
+import {useEffect, useState} from 'react';
+import {useParams} from 'react-router-dom';
+import {getMovieById} from '@/api/movieService';
+import {Poster} from '@/components';
+import type {MovieDetail} from '@/types/Movie';
+import {StarIcon as StarSolid} from '@heroicons/react/24/solid';
+import {StarIcon as StarOutline} from '@heroicons/react/24/outline';
+import {useGlobalUI} from '@/context/GlobalUIContext';
 
 export default function MovieDetail() {
-  const { id } = useParams<{ id: string }>();
+  const {id} = useParams<{id: string}>();
   const [movie, setMovie] = useState<MovieDetail | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
 
-  const { setLoading, setError } = useGlobalUI();
+  const {setLoading, setError} = useGlobalUI();
 
   useEffect(() => {
     if (!id) return;
@@ -89,7 +89,7 @@ export default function MovieDetail() {
             </h1>
             <button
               onClick={toggleFavorite}
-              className="p-1 rounded-full hover:opacity-80"
+              className="relative p-1 rounded-full hover:opacity-80 group"
               aria-label={
                 isFavorite ? 'Remove from Favorites' : 'Add to Favorites'
               }
@@ -99,6 +99,9 @@ export default function MovieDetail() {
               ) : (
                 <StarOutline className="w-6 h-6 text-gray-400 dark:text-gray-200" />
               )}
+              <span className="absolute -top-5 left-1/2 -translate-x-1/2 px-2 py-1 text-xs rounded bg-black text-white opacity-0 transition-opacity duration-200 pointer-events-none whitespace-nowrap group-hover:opacity-100">
+                {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+              </span>
             </button>
           </header>
 
